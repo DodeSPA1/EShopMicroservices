@@ -9,7 +9,7 @@ namespace Catalog.API.Products.CreateProduct
     {
         Task<CreateProductResult> IRequestHandler<CreateProductCommand, CreateProductResult>.Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            // Business logic to create a product would go here.
+            // Business logic to create a product.
             throw new NotImplementedException();
         }
     }
