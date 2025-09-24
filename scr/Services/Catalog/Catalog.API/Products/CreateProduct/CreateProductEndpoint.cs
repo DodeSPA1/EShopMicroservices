@@ -1,6 +1,4 @@
-﻿using Carter;
-
-namespace Catalog.API.Products.CreateProduct
+﻿namespace Catalog.API.Products.CreateProduct
 {
     public record CreateProductRequest(string Name, List<string> Category, string Description, string ImageFile, decimal Price);
     public record CreateProductResponse(Guid Id);
@@ -8,16 +6,22 @@ namespace Catalog.API.Products.CreateProduct
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost("/products", async (CreateProductRequest request, IMediator mediator) =>
+            app.MapPost("/products", async (CreateProductRequest request, ISender sender) =>
             {
-                var command = new CreateProductCommand(request.Name, request.Category, request.Description, request.ImageFile, request.Price);
-                var result = await mediator.Send(command);
-                return Results.Created($"/products/{result.Id}", new CreateProductResponse(result.Id));
+                var command = request.Adapt<CreateProductCommand>();
+
+                var result = await sender.Send(command);
+
+                var response = result.Adapt<CreateProductResponse>();
+
+                return Results.Created($"/products/{result.Id}", response);
             })
             .WithName("CreateProduct")
-            .WithTags("Products");
+            .Produces<CreateProductResponse>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .WithSummary("Create Product")
+            .WithDescription("Create Product");
         }
     }   
-    {
-    }
+    
 }
