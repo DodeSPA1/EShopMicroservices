@@ -1,6 +1,6 @@
 ﻿namespace Catalog.API.Products.GetProducts;
 
-public record GetProiductsResponse(IEnumerable<Product> Products);
+public record GetProductsResponse(IEnumerable<Product> Products);
 
 public class GetProductsEndpoint:ICarterModule
 {
@@ -9,11 +9,11 @@ public class GetProductsEndpoint:ICarterModule
         app.MapGet("/products", async (ISender sender) =>
         {
             var result = await sender.Send(new GetProductsQuery());
-            var response = result.Adapt<GetProiductsResponse>();
+            var response = result.Adapt<GetProductsResponse>();
             return Results.Ok(response);
         })
         .WithName("GetProducts")
-        .Produces<GetProiductsResponse>(StatusCodes.Status200OK)
+        .Produces<GetProductsResponse>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status400BadRequest)
         .WithSummary("Get Products")
         .WithDescription("Get Products");
