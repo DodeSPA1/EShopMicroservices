@@ -1,6 +1,8 @@
 
 
 using BuildingBlocks.Behaviours;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,32 @@ var app = builder.Build();
 
 app.MapCarter();
 
+app.UseExceptionHandler(exceptionHandlerapp =>
+{
+    exceptionHandlerapp.Run(async context =>
+    {
+        var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>()?.Error;
+        if (exception is null)
+        {
+            return;
+        }
+        var problemDetails = new ProblemDetails
+        {
+            Title = "An error occurred while processing your request.",
+            Status = StatusCodes.Status500InternalServerError,
+            Detail = exception.StackTrace
+        };
+
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(exception, exception.Message);
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        await context.Response.WriteAsJsonAsync(problemDetails);
+    });
+}
+);
 
 
 app.Run();
